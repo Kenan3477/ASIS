@@ -1,7 +1,4 @@
-# ASIS Production Deployment Guide
-# ==================================
-
-# Docker Configuration
+# ASIS Railway Production Deployment
 FROM python:3.11-slim
 
 # Set working directory
@@ -15,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     git \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
 # Python dependencies
@@ -24,21 +22,22 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy ASIS system files
 COPY . .
 
+# Make startup script executable
+RUN chmod +x start.sh
+
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data /app/config
 
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV ASIS_CONFIG_PATH=/app/config
-ENV ASIS_LOG_PATH=/app/logs
-ENV ASIS_DATA_PATH=/app/data
+ENV PORT=8000
 
-# Expose port for API
-EXPOSE 8080
+# Expose port (Railway will set PORT dynamically)
+EXPOSE $PORT
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:$PORT/health || exit 1
 
-# Run ASIS
-CMD ["python", "asis_production_system.py", "--production"]
+# Use startup script
+CMD ["bash", "start.sh"]
