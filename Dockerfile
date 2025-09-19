@@ -1,18 +1,15 @@
-# ASIS Railway Minimal Deployment
+# ASIS Railway Ultra-Minimal Deployment
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install minimal system dependencies
-RUN apt-get update && apt-get install -y gcc curl && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
+# Copy and install only essential requirements
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY app_minimal.py .
-COPY . .
+# Copy application files
+COPY app_ultra_minimal.py .
+COPY start_direct.py .
 
 # Set environment
 ENV PYTHONPATH=/app
@@ -20,5 +17,5 @@ ENV PYTHONPATH=/app
 # Expose port
 EXPOSE 8000
 
-# Start minimal app
-CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--worker-class", "uvicorn.workers.UvicornWorker", "app_minimal:app"]
+# Start with direct Python script
+CMD ["python", "start_direct.py"]
