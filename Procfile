@@ -1,0 +1,3 @@
+# Procfile for Railway deployment
+web: gunicorn --bind 0.0.0.0:$PORT --workers 4 --worker-class uvicorn.workers.UvicornWorker main:app
+worker: python -m celery worker -A worker.celery --loglevel=info
