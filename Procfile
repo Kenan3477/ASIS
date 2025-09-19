@@ -1,2 +1,1 @@
-# Procfile for Railway deployment - Ultra Minimal
-web: python start_direct.py
+web: python server_basic.py
