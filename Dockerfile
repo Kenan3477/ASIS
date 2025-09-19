@@ -1,43 +1,24 @@
-# ASIS Railway Production Deployment
+# ASIS Railway Minimal Deployment
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# System dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    make \
-    curl \
-    wget \
-    git \
-    bash \
-    && rm -rf /var/lib/apt/lists/*
+# Install minimal system dependencies
+RUN apt-get update && apt-get install -y gcc curl && rm -rf /var/lib/apt/lists/*
 
-# Python dependencies
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy ASIS system files
+# Copy application code
+COPY app_minimal.py .
 COPY . .
 
-# Make startup script executable
-RUN chmod +x start.sh
-
-# Create necessary directories
-RUN mkdir -p /app/logs /app/data /app/config
-
-# Set environment variables
+# Set environment
 ENV PYTHONPATH=/app
-ENV PORT=8000
 
-# Expose port (Railway will set PORT dynamically)
-EXPOSE $PORT
+# Expose port
+EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:$PORT/health || exit 1
-
-# Use startup script
-CMD ["bash", "start.sh"]
+# Start minimal app
+CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--worker-class", "uvicorn.workers.UvicornWorker", "app_minimal:app"]

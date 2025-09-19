@@ -25,10 +25,10 @@ import uuid
 
 # Environment configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
-REDIS_URL = os.getenv("REDIS_URL")
+REDIS_URL = os.getenv("REDIS_URL") 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key")
-ENVIRONMENT = os.getenv("RAILWAY_ENVIRONMENT", "development")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 # Initialize Stripe
 stripe.api_key = STRIPE_SECRET_KEY
