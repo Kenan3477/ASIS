@@ -7,6 +7,7 @@ uvicorn[standard]==0.24.0
 gunicorn==21.2.0
 
 # Database & Caching
+asyncpg==0.29.0
 psycopg2-binary==2.9.9
 sqlalchemy==2.0.23
 alembic==1.12.1
@@ -33,9 +34,6 @@ beautifulsoup4==4.12.2
 lxml==4.9.3
 feedparser==6.0.10
 fake-useragent==1.4.0
-
-# Background Tasks
-celery==5.3.4
 
 # Configuration
 python-dotenv==1.0.0
