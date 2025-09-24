@@ -13,8 +13,8 @@ from typing import Dict, List, Any, Tuple, Optional
 import threading
 import random
 import statistics
-from asis_core_identity import ASISCoreIdentitySystem
-from asis_autonomous_research_fixed import ASISAutonomousResearchSystem
+from asis_core_identity import ASISCoreIdentity
+from asis_autonomous_research_fixed import ASISAutonomousResearch
 from asis_advanced_pattern_recognition import ASISPatternRecognitionSystem
 
 class ASISCompleteVerificationSystem:
@@ -24,8 +24,8 @@ class ASISCompleteVerificationSystem:
         self.verification_db = "asis_verification_complete.db"
         
         # Initialize core systems
-        self.identity_system = ASISCoreIdentitySystem()
-        self.research_system = ASISAutonomousResearchSystem()
+        self.identity_system = ASISCoreIdentity()
+        self.research_system = ASISAutonomousResearch()
         self.pattern_system = ASISPatternRecognitionSystem()
         
         # Verification metrics
@@ -174,11 +174,11 @@ class ASISCompleteVerificationSystem:
         tests = []
         
         # Test creator knowledge
-        creator_test = self.identity_system.get_creator_information()
+        creator_test = self.identity_system.get_creator_knowledge()
         tests.append({
             'test_name': 'creator_knowledge',
-            'success': creator_test['name'] == 'Kenan Davies' and creator_test['birth_date'] == '17.02.2002',
-            'confidence': 0.95 if creator_test['name'] == 'Kenan Davies' else 0.3,
+            'success': creator_test['full_name'] == 'Kenan Davies' and creator_test['birth_date'] == '17.02.2002',
+            'confidence': 0.95 if creator_test['full_name'] == 'Kenan Davies' else 0.3,
             'details': creator_test
         })
         

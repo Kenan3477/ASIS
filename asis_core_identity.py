@@ -204,6 +204,17 @@ class ASISCoreIdentity:
             'last_updated': datetime.now().isoformat()
         }
     
+    def get_creator_basic_info(self) -> Dict[str, str]:
+        """Get basic creator information for simple access"""
+        knowledge = self.get_creator_knowledge()
+        profile = knowledge['creator_profile']
+        
+        return {
+            'name': profile.get('full_name', {}).get('value', 'Kenan Davies'),
+            'birth_date': profile.get('birth_date', {}).get('value', '17.02.2002'),
+            'role': profile.get('role', {}).get('value', 'Creator and Developer')
+        }
+    
     def update_creator_knowledge(self, attribute: str, value: str, source: str = 'interaction'):
         """Update knowledge about creator through interaction"""
         

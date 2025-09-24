@@ -19,8 +19,8 @@ import logging
 
 # Import ASIS core systems
 from asis_complete_verification_system import ASISCompleteVerificationSystem
-from asis_core_identity import ASISCoreIdentitySystem
-from asis_autonomous_research_fixed import ASISAutonomousResearchSystem
+from asis_core_identity import ASISCoreIdentity
+from asis_autonomous_research_fixed import ASISAutonomousResearch
 from asis_advanced_pattern_recognition import ASISPatternRecognitionSystem
 
 # Configure logging
@@ -41,8 +41,8 @@ class ASISTrainingInterface:
         logger.info("🚀 Initializing ASIS Core Systems...")
         
         self.verification_system = ASISCompleteVerificationSystem()
-        self.identity_system = ASISCoreIdentitySystem()
-        self.research_system = ASISAutonomousResearchSystem()
+        self.identity_system = ASISCoreIdentity()
+        self.research_system = ASISAutonomousResearch()
         self.pattern_system = ASISPatternRecognitionSystem()
         
         # System status
@@ -133,8 +133,8 @@ class ASISTrainingInterface:
         recognized_patterns = self.pattern_system.recognize_patterns(user_input, context)
         
         # Identity-aware response generation
-        identity_context = self.identity_system.get_creator_information()
-        self_awareness = self.identity_system.get_self_awareness_status()
+        identity_context = self.identity_system.get_creator_knowledge()
+        self_awareness = self.identity_system.get_identity_summary()
         
         # Generate response based on patterns and identity
         response = self._generate_intelligent_response(user_input, recognized_patterns, identity_context, self_awareness, context)
@@ -160,7 +160,7 @@ class ASISTrainingInterface:
         """Generate intelligent response using all ASIS systems"""
         
         # Check for creator-specific interactions
-        creator_name = identity_context.get('name', '')
+        creator_name = identity_context.get('full_name', '')
         birth_date = identity_context.get('birth_date', '')
         
         # Creator recognition responses
@@ -239,7 +239,7 @@ class ASISTrainingInterface:
         quick_check = self.verification_system.quick_verification_check()
         
         # System component status
-        identity_info = self.identity_system.get_creator_information()
+        identity_info = self.identity_system.get_creator_knowledge()
         research_status = self.research_system.get_research_status()
         pattern_status = self.pattern_system.get_system_status()
         
@@ -250,7 +250,7 @@ class ASISTrainingInterface:
             'system_components': {
                 'identity_system': {
                     'status': 'operational',
-                    'creator_knowledge': f"{identity_info['name']} ({identity_info['birth_date']})",
+                    'creator_knowledge': f"{identity_info['full_name']} ({identity_info['birth_date']})",
                     'self_awareness': 'active'
                 },
                 'research_system': {
