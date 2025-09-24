@@ -1,0 +1,16 @@
+{
+  "User Preferences": {
+    "information": "User prefers direct, specific answers over generic responses",
+    "source": "conversation_analysis",
+    "added_timestamp": "2025-09-23T14:33:29.745105",
+    "verification_hash": "4a2acce045449af3d55419d25e75b2b0",
+    "usage_count": 0
+  },
+  "test_learning_20250924_082231": {
+    "information": "This is a test knowledge entry created at 2025-09-24 08:22:31.622513",
+    "source": "verification_test",
+    "added_timestamp": "2025-09-24T08:22:31.622513",
+    "verification_hash": "ea18ba66739d1c69d6d10cb048b63cc2",
+    "usage_count": 0
+  }
+}

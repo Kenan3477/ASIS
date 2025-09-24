@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT --workers 4 --worker-class sync main:app
+web: python asis_training_interface_production.py
