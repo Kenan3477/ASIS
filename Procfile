@@ -1,1 +1,1 @@
-web: python asis_training_interface_production.py
+web: python asis_complete_training_interface.py
