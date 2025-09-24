@@ -174,11 +174,11 @@ class ASISCompleteVerificationSystem:
         tests = []
         
         # Test creator knowledge
-        creator_test = self.identity_system.get_creator_knowledge()
+        creator_test = self.identity_system.get_creator_basic_info()
         tests.append({
             'test_name': 'creator_knowledge',
-            'success': creator_test['full_name'] == 'Kenan Davies' and creator_test['birth_date'] == '17.02.2002',
-            'confidence': 0.95 if creator_test['full_name'] == 'Kenan Davies' else 0.3,
+            'success': creator_test.get('name') == 'Kenan Davies' and creator_test.get('birth_date') == '17.02.2002',
+            'confidence': 0.95 if creator_test.get('name') == 'Kenan Davies' else 0.3,
             'details': creator_test
         })
         

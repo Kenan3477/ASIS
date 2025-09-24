@@ -864,3 +864,65 @@ class ASISPatternRecognitionSystem:
             },
             'last_updated': datetime.now().isoformat()
         }
+    
+    def analyze_interaction_pattern(self, user_input: str, context: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze interaction patterns for learning"""
+        
+        try:
+            # Extract interaction features
+            features = {
+                'input_length': len(user_input),
+                'word_count': len(user_input.split()),
+                'question_marks': user_input.count('?'),
+                'technical_terms': len(re.findall(r'\b(AI|ML|neural|algorithm|data|learning|system)\b', user_input, re.IGNORECASE)),
+                'complexity_indicators': len(re.findall(r'\b(complex|advanced|sophisticated|detailed)\b', user_input, re.IGNORECASE)),
+                'context_type': context,
+                'expertise_level': metadata.get('expertise_level', 'unknown')
+            }
+            
+            # Calculate pattern confidence
+            confidence = 0.5  # Base confidence
+            
+            if features['technical_terms'] > 0:
+                confidence += 0.2
+            if features['question_marks'] > 0:
+                confidence += 0.1
+            if features['complexity_indicators'] > 0:
+                confidence += 0.1
+            if features['expertise_level'] != 'unknown':
+                confidence += 0.1
+                
+            confidence = min(confidence, 1.0)
+            
+            # Store pattern
+            pattern_signature = hashlib.md5(f"{context}_{features['expertise_level']}_{features['technical_terms']}".encode()).hexdigest()[:12]
+            
+            conn = sqlite3.connect(self.pattern_db)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT OR REPLACE INTO recognized_patterns 
+                (pattern_type, pattern_signature, confidence_score, pattern_data)
+                VALUES (?, ?, ?, ?)
+            ''', ('interaction', pattern_signature, confidence, json.dumps(features)))
+            
+            conn.commit()
+            conn.close()
+            
+            return {
+                'pattern_signature': pattern_signature,
+                'pattern_confidence': confidence,
+                'features_detected': features,
+                'learning_outcome': 'pattern_stored'
+            }
+            
+        except Exception as e:
+            return {
+                'pattern_signature': None,
+                'pattern_confidence': 0.0,
+                'error': str(e),
+                'learning_outcome': 'failed'
+            }
+
+# Create alias for compatibility
+ASISAdvancedPatternRecognition = ASISPatternRecognitionSystem

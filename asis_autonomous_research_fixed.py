@@ -565,3 +565,93 @@ class ASISAutonomousResearch:
         }
         
         return self._conduct_research_session(target)
+    
+    def get_knowledge_summary(self) -> Dict[str, Any]:
+        """Get summary of accumulated knowledge"""
+        
+        conn = sqlite3.connect(self.research_db)
+        cursor = conn.cursor()
+        
+        # Count total findings
+        cursor.execute('SELECT COUNT(*) FROM research_findings')
+        total_entries = cursor.fetchone()[0]
+        
+        # Average confidence (using relevance_score)
+        cursor.execute('SELECT AVG(relevance_score) FROM research_findings')
+        avg_confidence = cursor.fetchone()[0] or 0.0
+        
+        # Count research sessions
+        cursor.execute('SELECT COUNT(DISTINCT session_id) FROM research_findings')
+        total_sessions = cursor.fetchone()[0]
+        
+        # Recent activity (last 7 days)
+        cursor.execute('''
+            SELECT COUNT(*) FROM research_findings 
+            WHERE extraction_time > datetime('now', '-7 days')
+        ''')
+        recent_activity = cursor.fetchone()[0]
+        
+        # Get research topics as categories
+        cursor.execute('SELECT DISTINCT research_topic FROM research_sessions')
+        categories = [row[0] for row in cursor.fetchall()]
+        
+        conn.close()
+        
+        return {
+            'total_entries': total_entries,
+            'average_confidence': avg_confidence,
+            'total_sessions': total_sessions,
+            'recent_activity_7days': recent_activity,
+            'categories_explored': categories,
+            'knowledge_growth_active': total_entries > 0 and recent_activity > 0,
+            'last_updated': datetime.now().isoformat()
+        }
+    
+    def analyze_learning_effectiveness(self) -> Dict[str, Any]:
+        """Analyze how effectively the system is learning and expanding knowledge"""
+        
+        conn = sqlite3.connect(self.research_db)
+        cursor = conn.cursor()
+        
+        # Get learning metrics for last 30 days
+        cursor.execute('''
+            SELECT AVG(relevance_score), COUNT(*), 
+                   COUNT(DISTINCT session_id) as sessions
+            FROM research_findings 
+            WHERE extraction_time > datetime('now', '-30 days')
+        ''')
+        
+        result = cursor.fetchone()
+        avg_confidence = result[0] or 0.0
+        recent_findings = result[1]
+        recent_sessions = result[2]
+        categories_explored = 1  # Default since we removed this from query
+        
+        # Calculate effectiveness factors
+        confidence_factor = min(1.0, avg_confidence if avg_confidence > 0 else 0.5)  # Base confidence
+        activity_factor = min(1.0, recent_findings / 25.0)  # 25 findings as good activity
+        diversity_factor = min(1.0, categories_explored / 5.0)  # 5 categories as good diversity
+        session_factor = min(1.0, recent_sessions / 10.0)  # 10 sessions as active learning
+        
+        # Overall effectiveness score
+        effectiveness_score = (confidence_factor * 0.3 + activity_factor * 0.3 + 
+                             diversity_factor * 0.2 + session_factor * 0.2)
+        
+        # Determine if knowledge base is actively expanding
+        is_expanding = recent_findings > 0 and recent_sessions > 0
+        
+        conn.close()
+        
+        return {
+            'effectiveness_score': effectiveness_score,
+            'knowledge_expanding': is_expanding,
+            'average_confidence': avg_confidence,
+            'recent_findings_30days': recent_findings,
+            'recent_sessions_30days': recent_sessions,
+            'categories_explored': categories_explored,
+            'learning_trend': 'excellent' if effectiveness_score > 0.8 else 
+                            'good' if effectiveness_score > 0.6 else 
+                            'moderate' if effectiveness_score > 0.4 else 'needs_improvement',
+            'expansion_rate': f"{recent_findings} findings in 30 days",
+            'last_analysis': datetime.now().isoformat()
+        }
