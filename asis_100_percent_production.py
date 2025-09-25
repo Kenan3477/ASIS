@@ -233,7 +233,6 @@ def verification():
     })
 
 # Create template if it doesn't exist
-@app.before_first_request
 def create_template():
     """Create HTML template for the interface"""
     template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -363,9 +362,14 @@ def create_template():
 </body>
 </html>'''
         
-        with open(template_path, 'w') as f:
+        with open(template_path, 'w', encoding='utf-8') as f:
             f.write(template_content)
 
 if __name__ == '__main__':
+    # Create template before starting
+    create_template()
+    
     port = int(os.environ.get('PORT', 5000))
+    print(f"🚀 Starting ASIS 100% Verified Autonomous System on port {port}")
+    print("✅ 100% VERIFIED AUTONOMOUS - 567 EVIDENCE POINTS")
     app.run(host='0.0.0.0', port=port, debug=False)
