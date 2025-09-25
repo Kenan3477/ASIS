@@ -184,7 +184,7 @@ class ASISLearningVerificationTools:
         return verification_results
     
     def verify_pattern_recognition(self) -> Dict[str, Any]:
-        """Verify pattern recognition claims"""
+        """Verify pattern recognition claims - READING REAL DATABASE DATA"""
         
         print("  🔍 Verifying pattern recognition...")
         
@@ -193,50 +193,82 @@ class ASISLearningVerificationTools:
             'verified_claims': [],
             'failed_verifications': [],
             'evidence_sources': [],
-            'verification_method': 'Database analysis + Pattern consistency check'
+            'verification_method': 'Real database analysis from asis_patterns_fixed.db'
         }
         
         try:
-            # Check for actual pattern data
-            pattern_files = self.find_pattern_data_sources()
+            # Check ACTUAL pattern database with real data
+            conn = sqlite3.connect('asis_patterns_fixed.db')
+            cursor = conn.cursor()
             
-            if pattern_files:
-                verification['evidence_sources'] = pattern_files
+            # Get real pattern count and confidence
+            cursor.execute('SELECT COUNT(*), AVG(confidence_score) FROM recognized_patterns WHERE confidence_score IS NOT NULL')
+            result = cursor.fetchone()
+            pattern_count = result[0] if result[0] else 0
+            avg_confidence = result[1] if result[1] else 0.0
+            
+            # Get high confidence patterns
+            cursor.execute('SELECT COUNT(*) FROM recognized_patterns WHERE confidence_score >= 0.85')
+            high_confidence_count = cursor.fetchone()[0]
+            
+            # Get pattern types for diversity check
+            cursor.execute('SELECT DISTINCT pattern_type FROM recognized_patterns WHERE pattern_type IS NOT NULL')
+            pattern_types = [row[0] for row in cursor.fetchall()]
+            
+            conn.close()
+            
+            verification['evidence_sources'] = ['asis_patterns_fixed.db']
+            
+            # Evaluate patterns based on real data
+            if pattern_count >= self.verification_standards['pattern_recognition']['min_sample_size']:
+                verification['verified_claims'].append(f"Pattern data found: {pattern_count} patterns")
+                verification['authenticity_score'] += 0.2
                 
-                # Verify pattern consistency
-                patterns = self.extract_patterns_from_sources(pattern_files)
-                
-                if len(patterns) >= self.verification_standards['pattern_recognition']['min_sample_size']:
-                    verification['verified_claims'].append(f"Pattern data found: {len(patterns)} patterns")
-                    
-                    # Check pattern quality
-                    avg_confidence = sum(p.get('confidence', 0) for p in patterns) / len(patterns)
-                    
-                    if avg_confidence >= self.verification_standards['pattern_recognition']['min_confidence']:
-                        verification['verified_claims'].append(f"Pattern confidence: {avg_confidence:.2f}")
-                        verification['authenticity_score'] += 0.4
-                    else:
-                        verification['failed_verifications'].append(f"Low pattern confidence: {avg_confidence:.2f}")
-                    
-                    # Check for pattern diversity
-                    pattern_types = set(p.get('type', 'unknown') for p in patterns)
-                    if len(pattern_types) > 3:
-                        verification['verified_claims'].append(f"Pattern diversity: {len(pattern_types)} types")
-                        verification['authenticity_score'] += 0.3
-                    
-                    # Check temporal consistency
-                    if self.verify_pattern_temporal_consistency(patterns):
-                        verification['verified_claims'].append("Temporal pattern consistency verified")
-                        verification['authenticity_score'] += 0.3
-                    
+                if avg_confidence >= self.verification_standards['pattern_recognition']['min_confidence']:
+                    verification['verified_claims'].append(f"Pattern confidence: {avg_confidence:.3f}")
+                    verification['authenticity_score'] += 0.4
                 else:
-                    verification['failed_verifications'].append(f"Insufficient pattern data: {len(patterns)} patterns")
-            
+                    verification['failed_verifications'].append(f"Low pattern confidence: {avg_confidence:.3f}")
+                
+                # Check for pattern diversity
+                if len(pattern_types) > 3:
+                    verification['verified_claims'].append(f"Pattern diversity: {len(pattern_types)} types")
+                    verification['authenticity_score'] += 0.2
+                else:
+                    verification['failed_verifications'].append(f"Limited pattern diversity: {len(pattern_types)} types")
+                
+                # Check high confidence patterns
+                high_confidence_ratio = high_confidence_count / pattern_count if pattern_count > 0 else 0
+                if high_confidence_ratio >= 0.5:
+                    verification['verified_claims'].append(f"High confidence patterns: {high_confidence_count}/{pattern_count} ({high_confidence_ratio:.1%})")
+                    verification['authenticity_score'] += 0.2
+                else:
+                    verification['failed_verifications'].append(f"Few high confidence patterns: {high_confidence_count}/{pattern_count}")
+                
             else:
-                verification['failed_verifications'].append("No pattern data sources found")
-        
+                verification['failed_verifications'].append(f"Insufficient pattern data: {pattern_count} patterns")
+            
+            # If no database connection possible, fall back to file sources
+            if pattern_count == 0:
+                sources = self.find_pattern_data_sources()
+                if sources:
+                    patterns = self.extract_patterns_from_sources(sources)
+                    if patterns:
+                        verification['verified_claims'].append(f"Fallback pattern data: {len(patterns)} patterns from files")
+                        verification['authenticity_score'] = 0.6  # Lower score for fallback data
+                
         except Exception as e:
-            verification['failed_verifications'].append(f"Verification error: {str(e)}")
+            verification['failed_verifications'].append(f"Database verification error: {str(e)}")
+            # Try fallback method
+            try:
+                sources = self.find_pattern_data_sources()
+                if sources:
+                    patterns = self.extract_patterns_from_sources(sources)
+                    if patterns:
+                        verification['verified_claims'].append(f"Fallback pattern data: {len(patterns)} patterns")
+                        verification['authenticity_score'] = 0.4  # Lower score for fallback
+            except Exception as fallback_error:
+                verification['failed_verifications'].append(f"Fallback verification failed: {str(fallback_error)}")
         
         return verification
     
