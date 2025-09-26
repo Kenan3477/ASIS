@@ -26,5 +26,5 @@ USER appuser
 # Expose port
 EXPOSE $PORT
 
-# Use shell form to allow environment variable expansion
-CMD python asis_100_percent_production.py
+# Run the ASIS production file with verification and version endpoints
+CMD ["python", "asis_100_percent_production.py"]
