@@ -27,4 +27,4 @@ USER appuser
 EXPOSE $PORT
 
 # Use shell form to allow environment variable expansion
-CMD python app.py
+CMD python asis_100_percent_production.py
