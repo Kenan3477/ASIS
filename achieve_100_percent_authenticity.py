@@ -63,7 +63,7 @@ class ASIS100PercentFixer:
             all_patterns = cursor.fetchall()
             
             # Create comprehensive pattern relationships
-            for i in range(len(all_patterns)):
+            for i, item in enumerate(all_patterns):
                 for j in range(i+1, min(len(all_patterns), i+4)):
                     cursor.execute('SELECT COUNT(*) FROM pattern_relationships WHERE pattern1_id = ? AND pattern2_id = ?', 
                                  (all_patterns[i][0], all_patterns[j][0]))

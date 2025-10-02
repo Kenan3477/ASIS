@@ -406,3 +406,6 @@ class ASISRealTimeLearning:
             "knowledge_gaps_identified": len(self.knowledge_gaps),
             "research_topics": self.research_topics
         }
+
+# Export alias for expected class name
+RealtimeLearningSystem = ASISRealTimeLearning

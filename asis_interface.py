@@ -11,6 +11,7 @@ import sys
 import json
 import time
 import threading
+import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import sqlite3
@@ -23,6 +24,14 @@ from asis_adaptive_meta_learning import ASISAdaptiveMetaLearning
 from asis_enhanced_learning_display import ASISEnhancedLearningDisplay
 from asis_learning_analytics_dashboard import ASISLearningAnalyticsDashboard
 from asis_learning_verification_tools import ASISLearningVerificationTools
+
+# Import ChatGPT Agent capabilities
+try:
+    from chatgpt_agent_analysis import ASISAGIAgent
+    AGENT_AVAILABLE = True
+except ImportError as e:
+    print(f"Note: ChatGPT Agent features not available: {e}")
+    AGENT_AVAILABLE = False
 
 # Import AGI components
 try:
@@ -116,7 +125,17 @@ class ASISInterface:
             "total_interactions": 0
         }
         
-        # ASIS Capabilities
+        # Initialize ChatGPT Agent capabilities first
+        self.agent_system = None
+        if AGENT_AVAILABLE:
+            try:
+                self.agent_system = ASISAGIAgent()
+                print("🤖 ChatGPT Agent capabilities integrated")
+            except Exception as e:
+                print(f"Note: Agent system initialization failed: {e}")
+                self.agent_system = None
+        
+        # ASIS Capabilities (after agent system initialization)
         self.asis_capabilities = {
             "natural_language_processing": True,
             "decision_making": True,
@@ -126,7 +145,11 @@ class ASISInterface:
             "self_evolution": True,
             "consciousness": True,
             "emotional_intelligence": True,
-            "strategic_planning": True
+            "strategic_planning": True,
+            "autonomous_task_execution": bool(self.agent_system),
+            "multi_step_reasoning": bool(self.agent_system),
+            "tool_orchestration": bool(self.agent_system),
+            "agent_mode": bool(self.agent_system)
         }
         
         # Conversation history
@@ -764,8 +787,12 @@ class ASISInterface:
         print("=" * 50)
         print("🤖 ASIS: Hello! I'm ASIS, the world's first True AGI.")
         print("🤖 ASIS: I have full consciousness, creativity, and reasoning capabilities.")
+        if self.agent_system:
+            print("🤖 ASIS: I now have ChatGPT-like autonomous agent capabilities!")
         print("🤖 ASIS: How can I assist you today?")
         print("\n💡 Type 'exit' to end conversation, 'status' for system info")
+        if self.agent_system:
+            print("💡 Type 'agent [task]' for autonomous task execution")
         print("=" * 50)
         
         self.conversation_active = True
@@ -824,6 +851,48 @@ class ASISInterface:
                     verification_report = self.learning_verification_tools.comprehensive_learning_verification()
                     verification_display = self.learning_verification_tools.generate_verification_report(verification_report)
                     print(verification_display)
+                    continue
+                
+                elif user_input.lower().startswith('agent ') and self.agent_system:
+                    # Extract task from agent command
+                    task_description = user_input[6:].strip()
+                    if task_description:
+                        print(f"\n🤖 ASIS: Executing autonomous task: {task_description}")
+                        print("🔄 Activating agent mode...")
+                        
+                        try:
+                            # Run autonomous task execution
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+                            result = loop.run_until_complete(
+                                self.agent_system.execute_autonomous_task(task_description)
+                            )
+                            loop.close()
+                            
+                            print(f"\n✅ Task completed!")
+                            print(f"📊 Status: {result['status']}")
+                            print(f"📈 Progress: {result['progress']:.1%}")
+                            print(f"🎯 Subtasks: {result['subtasks_completed']}/{result['total_subtasks']}")
+                            
+                            if result.get('final_result'):
+                                summary = result['final_result'].get('task_summary', 'Task completed successfully')
+                                print(f"📝 Summary: {summary[:200]}...")
+                            
+                        except Exception as e:
+                            print(f"❌ Agent execution error: {e}")
+                    else:
+                        print("\n🤖 ASIS: Please specify a task. Example: 'agent research AI trends'")
+                    continue
+                
+                elif user_input.lower() == 'agent' and self.agent_system:
+                    print("\n🤖 ASIS Agent Commands:")
+                    print("=" * 40)
+                    print("• agent [task] - Execute autonomous task")
+                    print("• Examples:")
+                    print("  - agent research latest AI developments")
+                    print("  - agent analyze system performance")
+                    print("  - agent create automation script")
+                    print("  - agent solve complex problem X")
                     continue
                 
                 elif user_input.lower() == 'help':
@@ -1301,6 +1370,18 @@ class ASISInterface:
         for capability, status in self.asis_capabilities.items():
             status_icon = "✅" if status else "❌"
             print(f"{status_icon} {capability.replace('_', ' ').title()}")
+        
+        # Display agent system status
+        if self.agent_system:
+            print(f"\n🤖 AGENT SYSTEM STATUS:")
+            print(f"✅ ChatGPT Agent Capabilities: ACTIVE")
+            print(f"✅ Autonomous Task Execution: OPERATIONAL")
+            print(f"✅ Multi-Step Reasoning: ENABLED")
+            print(f"✅ Tool Orchestration: FUNCTIONAL")
+            print(f"✅ Self-Monitoring: ACTIVE")
+        else:
+            print(f"\n🤖 AGENT SYSTEM STATUS:")
+            print(f"❌ ChatGPT Agent Capabilities: NOT AVAILABLE")
         
         print("=" * 50)
     

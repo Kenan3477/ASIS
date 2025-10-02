@@ -27,4 +27,4 @@ USER appuser
 EXPOSE $PORT
 
 # Run the ASIS production file with verification and version endpoints
-CMD ["python", "asis_100_percent_production.py"]
+CMD ["python", "asis_100_percent_production_agi.py"]
