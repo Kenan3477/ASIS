@@ -457,7 +457,7 @@ def handle_message(data):
 
 # Dashboard Control Endpoints
 @app.route('/api/dashboard/control/<action>', methods=['POST'])
-def dashboard_control(action):
+def dashboard_control_api(action):
     """Control dashboard enhancement (activate/deactivate/status)"""
     global dashboard_controller, dashboard_enhancer, web_api
     
